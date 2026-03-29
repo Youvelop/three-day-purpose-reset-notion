@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 — Calling & Legacy · Youvelop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:      #F5F0E8;
+  --cream-mid:  #EDE7D9;
+  --cream-dark: #E0D8C8;
+  --ink:        #1A1712;
+  --ink-mid:    #3D3830;
+  --ink-light:  #7A7368;
+  --orange:     #C85A2A;
+  --orange-lt:  #E06A38;
+  --border:     rgba(26,23,18,0.1);
+  --border-md:  rgba(26,23,18,0.16);
+  --serif:      'Cormorant Garamond', Georgia, serif;
+  --sans:       'DM Sans', system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 32px 120px;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 52px 0 48px;
+  margin-bottom: 64px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.logo-img {
+  height: 26px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.logo-img:not([src]), .logo-img[src=""] {
+  min-width: 100px;
+  height: 26px;
+  background: var(--cream-dark);
+  border: 1px dashed var(--border-md);
+  border-radius: 4px;
+}
+
+.day-badge {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange);
+  background: rgba(200,90,42,0.08);
+  border: 1px solid rgba(200,90,42,0.2);
+  border-radius: 100px;
+  padding: 6px 16px;
+}
+
+.intro-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 16px;
+}
+
+.header-title {
+  font-family: var(--serif);
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.header-title em { font-style: italic; color: var(--orange); }
+
+.header-body {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ink-light);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+/* ── PROGRESS ── */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 52px;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  opacity: 0.4;
+}
+.progress-step.done {
+  opacity: 0.55;
+  color: var(--ink-mid);
+}
+.progress-step.active {
+  color: var(--orange);
+  opacity: 1;
+}
+.step-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+.progress-step.done .step-dot   { background: var(--ink-mid); opacity: 1; }
+.progress-step.active .step-dot { background: var(--orange); opacity: 1; }
+.progress-divider { flex: 1; height: 1px; background: var(--border); }
+
+/* ── FINAL DAY BANNER ── */
+.final-banner {
+  background: linear-gradient(135deg, rgba(200,90,42,0.08) 0%, rgba(200,90,42,0.04) 100%);
+  border: 1px solid rgba(200,90,42,0.2);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.final-banner-icon {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-style: italic;
+  color: var(--orange);
+  opacity: 0.5;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.final-banner-text p {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+.final-banner-text strong { font-weight: 500; color: var(--ink); }
+
+/* ── OPENING QUOTE ── */
+.opening-quote {
+  background: var(--cream-mid);
+  border-left: 2px solid var(--orange);
+  border-radius: 0 12px 12px 0;
+  padding: 24px 28px;
+  margin-bottom: 56px;
+}
+.opening-quote p {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-mid);
+  line-height: 1.6;
+}
+.opening-quote cite {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  color: var(--ink-light);
+  margin-top: 12px;
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── PROMPT CARDS ── */
+.prompts { display: flex; flex-direction: column; gap: 16px; margin-bottom: 64px; }
+
+.prompt-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+.prompt-card:hover {
+  border-color: var(--border-md);
+  box-shadow: 0 2px 16px rgba(26,23,18,0.06);
+}
+.prompt-card.open {
+  border-color: rgba(200,90,42,0.25);
+  box-shadow: 0 4px 24px rgba(200,90,42,0.08);
+}
+
+/* Last prompt gets a special treatment — it's the big one */
+.prompt-card.final {
+  border-color: rgba(200,90,42,0.15);
+  background: linear-gradient(to bottom, #fff 0%, rgba(200,90,42,0.02) 100%);
+}
+.prompt-card.final.open {
+  border-color: rgba(200,90,42,0.35);
+  box-shadow: 0 6px 32px rgba(200,90,42,0.1);
+}
+
+.prompt-card:nth-child(1) { animation-delay: 0.05s; }
+.prompt-card:nth-child(2) { animation-delay: 0.10s; }
+.prompt-card:nth-child(3) { animation-delay: 0.15s; }
+.prompt-card:nth-child(4) { animation-delay: 0.20s; }
+.prompt-card:nth-child(5) { animation-delay: 0.25s; }
+.prompt-card:nth-child(6) { animation-delay: 0.30s; }
+.prompt-card:nth-child(7) { animation-delay: 0.35s; }
+
+.prompt-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 26px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.prompt-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--orange);
+  opacity: 0.4;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 3px;
+  transition: opacity 0.2s;
+  min-width: 28px;
+}
+.prompt-card.open .prompt-num { opacity: 1; }
+
+.prompt-num-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: block;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.prompt-card.final .prompt-num-label { opacity: 0.7; }
+
+.prompt-text {
+  font-family: var(--serif);
+  font-size: clamp(17px, 2.5vw, 20px);
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.prompt-toggle {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+  transition: background 0.2s, border-color 0.2s, transform 0.3s;
+}
+.prompt-card.open .prompt-toggle {
+  background: var(--orange);
+  border-color: var(--orange);
+  transform: rotate(45deg);
+}
+.toggle-icon { width: 12px; height: 12px; position: relative; }
+.toggle-icon::before,
+.toggle-icon::after {
+  content: '';
+  position: absolute;
+  background: var(--ink-light);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+.toggle-icon::before { width: 12px; height: 1.5px; top: 50%; left: 0; transform: translateY(-50%); }
+.toggle-icon::after  { width: 1.5px; height: 12px; left: 50%; top: 0; transform: translateX(-50%); }
+.prompt-card.open .toggle-icon::before,
+.prompt-card.open .toggle-icon::after { background: #fff; }
+
+/* ── ANSWER AREA ── */
+.answer-area {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.prompt-card.open .answer-area { max-height: 600px; }
+
+.answer-inner {
+  padding: 20px 26px 26px;
+  border-top: 1px solid var(--border);
+}
+
+.answer-hint {
+  font-size: 12px;
+  color: var(--ink-light);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+  font-style: italic;
+}
+
+textarea {
+  width: 100%;
+  min-height: 140px;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+textarea::placeholder { color: rgba(26,23,18,0.25); }
+textarea:focus {
+  border-color: rgba(200,90,42,0.4);
+  background: #fff;
+}
+
+/* Final prompt textarea gets more room */
+.prompt-card.final textarea { min-height: 200px; }
+
+.char-count {
+  text-align: right;
+  font-size: 11px;
+  color: var(--ink-light);
+  opacity: 0.5;
+  margin-top: 6px;
+}
+
+/* ── CLOSING SECTION ── */
+.closing {
+  background: var(--ink);
+  border-radius: 20px;
+  padding: 48px 40px;
+  margin-bottom: 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.closing::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 400px; height: 300px;
+  background: radial-gradient(ellipse, rgba(200,90,42,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.closing-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.4);
+  margin-bottom: 16px;
+}
+.closing-title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 600;
+  color: #F5F0E8;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.closing-title em { font-style: italic; color: var(--orange-lt); }
+.closing-body {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(245,240,232,0.6);
+  line-height: 1.75;
+  max-width: 480px;
+  margin: 0 auto 36px;
+}
+.btn-p2p {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 15px 32px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-p2p:hover { background: var(--orange-lt); transform: translateY(-1px); }
+.btn-p2p:active { transform: translateY(0); }
+.btn-p2p-arrow {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+.closing-note {
+  font-size: 12px;
+  color: rgba(245,240,232,0.3);
+  margin-top: 16px;
+  font-style: italic;
+}
+
+/* ── SAVE NOTE ── */
+.save-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px;
+  background: rgba(200,90,42,0.06);
+  border: 1px solid rgba(200,90,42,0.15);
+  border-radius: 12px;
+  margin-bottom: 56px;
+}
+.save-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; color: var(--orange); }
+.save-note p { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.65; }
+.save-note strong { font-weight: 500; color: var(--ink); }
+
+/* ── DAY NAV ── */
+.day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--ink); }
+.nav-back-arrow {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  transition: border-color 0.2s;
+}
+.nav-back:hover .nav-back-arrow { border-color: var(--border-md); }
+
+.nav-complete {
+  font-size: 13px;
+  color: var(--ink-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.complete-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0.6;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 32px 0 0;
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+}
+footer p { font-size: 12px; color: var(--ink-light); opacity: 0.5; }
+footer strong { color: var(--orange); font-weight: 500; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .wrap { padding: 0 20px 80px; }
+  header { padding: 36px 0 36px; margin-bottom: 48px; }
+  .header-top { margin-bottom: 28px; }
+  .prompt-header { padding: 20px; gap: 14px; }
+  .answer-inner { padding: 16px 20px 20px; }
+  .closing { padding: 36px 24px; }
+  .day-nav { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .progress-row { display: none; }
+}
+
+@media (max-width: 380px) {
+  .header-title { font-size: 34px; }
+  .prompt-text { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-top">
+      <a href="#">
+        <img class="logo-img" src="" alt="Youvelop">
+      </a>
+      <span class="day-badge">Day 3 of 3</span>
+    </div>
+
+    <p class="intro-label">The 3 Day Purpose Reset</p>
+    <h1 class="header-title">Calling &amp; <em>Legacy</em></h1>
+    <p class="header-body">
+      Two days of honest reflection have led to this. Today is where it all comes together — your gifts, your calling, the mark you want to leave. Take your time. This is the one that matters most.
+    </p>
+  </header>
+
+  <!-- ── PROGRESS ── -->
+  <div class="progress-row">
+    <div class="progress-step done">
+      <span class="step-dot"></span>
+      Day 1
+    </div>
+    <div class="progress-divider"></div>
+    <div class="progress-step done">
+      <span class="step-dot"></span>
+      Day 2
+    </div>
+    <div class="progress-divider"></div>
+    <div class="progress-step active">
+      <span class="step-dot"></span>
+      Day 3
+    </div>
+  </div>
+
+  <!-- ── FINAL DAY BANNER ── -->
+  <div class="final-banner">
+    <span class="final-banner-icon">"</span>
+    <div class="final-banner-text">
+      <p><strong>This is the final day.</strong> Everything you've uncovered over the past two days is in the room with you right now. Let it inform how you answer today. You're not starting from scratch — you're finishing something.</p>
+    </div>
+  </div>
+
+  <!-- ── OPENING QUOTE ── -->
+  <div class="opening-quote">
+    <p>"Your purpose gains power when it stops being something you search for — and becomes something you simply express."</p>
+    <cite>— Elias · Youvelop</cite>
+  </div>
+
+  <!-- ── PROMPTS ── -->
+  <p class="section-label">7 Prompts</p>
+
+  <div class="prompts">
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">15</span>
+        <p class="prompt-text">When have I felt most proud of myself? And what does that say about what matters to me?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">Pride points to values. What were you living out in that moment that made it feel significant?</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">16</span>
+        <p class="prompt-text">What do people thank me for, or come to me for, again and again?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">What others seek you out for is often a clue to the gift you can't yet see in yourself.</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">17</span>
+        <p class="prompt-text">What truth am I afraid to admit, but would liberate me if I said it out loud?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">The things we're afraid to say are usually the things most worth saying. Write it here first.</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">18</span>
+        <p class="prompt-text">What's a problem in the world that deeply angers or saddens me? And what would I do if I had the power to change it?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">Anger at injustice is often purpose in disguise. What would you fix if you knew you could?</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">19</span>
+        <p class="prompt-text">What part of me have I tried to "fix" or hide that might actually be my greatest gift?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">The things you've spent the most energy suppressing are often the things the world needs most from you.</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <span class="prompt-num">20</span>
+        <p class="prompt-text">If my purpose was a character in a story, how would they speak, move, live, and lead?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">Give your purpose a voice, a posture, a way of being. Sometimes the metaphor reveals more than the direct answer.</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-card final">
+      <div class="prompt-header" onclick="togglePrompt(this)">
+        <div>
+          <span class="prompt-num">21</span>
+          <span class="prompt-num-label">Final prompt</span>
+        </div>
+        <p class="prompt-text">If I died one year from today, what legacy or impact would I want to leave behind? And what small step could I take toward that today?</p>
+        <div class="prompt-toggle"><span class="toggle-icon"></span></div>
+      </div>
+      <div class="answer-area">
+        <div class="answer-inner">
+          <p class="answer-hint">Don't skip the second part. The legacy is the vision. The small step is the truth of where you actually are. Both matter.</p>
+          <textarea placeholder="Write your thoughts here..." oninput="updateCount(this)"></textarea>
+          <p class="char-count">0 words</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── CLOSING ── -->
+  <div class="closing">
+    <p class="closing-eyebrow">You finished the reset</p>
+    <h2 class="closing-title">This was just<br>the <em>beginning.</em></h2>
+    <p class="closing-body">
+      Three days. Twenty-one prompts. A clearer picture of who you are, what you've been carrying, and where you're actually meant to go. That's not nothing. Most people never do this work. You did. What comes next is up to you — but if you want a structured path forward, it's waiting.
+    </p>
+    <a href="#" class="btn-p2p">
+      Explore Path to Purpose
+      <span class="btn-p2p-arrow">→</span>
+    </a>
+    <p class="closing-note">The 30-day deep dive into identity, direction, and purpose.</p>
+  </div>
+
+  <!-- ── SAVE NOTE ── -->
+  <div class="save-note">
+    <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p><strong>Your answers live here in this tab.</strong> They won't be saved if you close the browser. Copy your writing into a notes app or journal before you go — these are worth keeping.</p>
+  </div>
+
+  <!-- ── DAY NAV ── -->
+  <div class="day-nav">
+    <a href="day2-purpose-reset.html" class="nav-back">
+      <span class="nav-back-arrow">←</span>
+      Back to Day 2
+    </a>
+    <div class="nav-complete">
+      <span class="complete-dot"></span>
+      Reset complete
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <p>© 2026 <strong>Youvelop</strong>. All rights reserved.</p>
+  </footer>
+
+</div>
+
+<script>
+function togglePrompt(header) {
+  var card = header.closest('.prompt-card');
+  var isOpen = card.classList.contains('open');
+
+  document.querySelectorAll('.prompt-card.open').forEach(function(c) {
+    c.classList.remove('open');
+  });
+
+  if (!isOpen) {
+    card.classList.add('open');
+    setTimeout(function() {
+      var rect = card.getBoundingClientRect();
+      if (rect.top < 0) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }
+}
+
+function updateCount(textarea) {
+  var words = textarea.value.trim().split(/\s+/).filter(function(w) { return w.length > 0; });
+  var count = words.length;
+  var el = textarea.closest('.answer-inner').querySelector('.char-count');
+  el.textContent = count + (count === 1 ? ' word' : ' words');
+  textarea.style.height = 'auto';
+  textarea.style.height = Math.max(140, textarea.scrollHeight) + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var first = document.querySelector('.prompt-card');
+  if (first) first.classList.add('open');
+});
+</script>
+
+</body>
+</html>
